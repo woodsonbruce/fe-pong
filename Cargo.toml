@@ -1,0 +1,24 @@
+[package]
+name = "fe-pong"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+macroquad = {version = "0.4.14", optional=true }
+miniquad = {version = "0.4.8", optional=true }
+rocket = {version = "0.5.1", optional=true }
+
+[features]
+build-pong = ["macroquad", "miniquad" ]
+build-server = ["rocket"]
+
+[[bin]]
+name = "pong"
+path = "src/bin/pong.rs"
+required-features = ["build-pong"]
+
+[[bin]]
+name = "game_server"
+path = "src/bin/game_server.rs"
+required-features = ["build-server"]
+
