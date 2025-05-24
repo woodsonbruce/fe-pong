@@ -1,15 +1,16 @@
 # fe-pong
 
-This is Iron Pong.
+This is Iron Pong.  Iron Pong is single-player and does not keep score.
 
-- pong.rs encodes the game and is compiled to WASM
-- game_server.rs is built using Rocket.rs
+- src/bin/pong.rs encodes the game and is compiled to WASM
+- src/bin/game_server.rs is built using Rocket.rs
 
 
 Requirements:
 
+- git
 - Docker
-- Any modern browser
+- browser
 
 
 At the prompt:
@@ -18,4 +19,7 @@ At the prompt:
 2. cd fe-pong/
 3. sudo docker build -t fe-pong . && sudo docker run -p 5000:5000 fe-pong
 
-In the browser:  play pong at http://<host-ip>:5000 
+
+Then use up an down arrow to play at http://<host-ip>:5000
+
+![pong](assets/pong.png)
