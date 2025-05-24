@@ -20,6 +20,6 @@ At the prompt:
 3. sudo docker build -t fe-pong . && sudo docker run -p 5000:5000 fe-pong
 
 
-Then use up an down arrow to play at http://<host-ip>:5000
+Then use up an down arrow to play at http://\<host-ip\>:5000
 
 ![pong](assets/pong.png)
