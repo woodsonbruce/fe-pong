@@ -9,6 +9,11 @@ const BALL_SPEED: f32 = 400.0;
 const PADDLE_HEIGHT: f32 = 50.0;
 const PADDLE_THICKNESS: f32 = 12.0;
 const PADDLE_SPEED: f32 = 200.0;
+const LEFT_BALL_RESET_X: f32 = 0.05;
+const RIGHT_BALL_RESET_X: f32 = 0.95;
+const BALL_ESTIMATION_X: f32 = 0.2;
+const LEFT_PADDLE_FACE_X: f32 = 0.1;
+const RIGHT_PADDLE_FACE_X: f32 = 0.9;
 
 struct Ball {
     x: f32,
@@ -122,13 +127,13 @@ async fn main() {
         BALL_COLOR,
     );
     let mut player_paddle = Paddle::new(
-        0.9 * screen_width(),
+        RIGHT_PADDLE_FACE_X * screen_width(),
         (screen_height() - PADDLE_HEIGHT) / 2.0,
         PADDLE_THICKNESS,
         PADDLE_HEIGHT,
     );
     let mut program_paddle = Paddle::new(
-        0.1 * screen_width() - PADDLE_THICKNESS,
+        LEFT_PADDLE_FACE_X * screen_width() - PADDLE_THICKNESS,
         (screen_height() - PADDLE_HEIGHT) / 2.0,
         PADDLE_THICKNESS,
         PADDLE_HEIGHT,
@@ -141,14 +146,15 @@ async fn main() {
         WALL_THICKNESS,
     );
 
-    let mut increment = 0.0;
+    let mut paddle_increment = 0.0;
     loop {
-        top_wall.draw();
-        bottom_wall.draw();
-
-        program_paddle.draw();
 
         let delta_time = get_frame_time();
+
+        top_wall.draw();
+        bottom_wall.draw();
+        program_paddle.draw();
+
         if is_key_down(KeyCode::Down)
             && player_paddle.y < (screen_height() - player_paddle.h - WALL_THICKNESS)
         {
@@ -157,6 +163,7 @@ async fn main() {
         if is_key_down(KeyCode::Up) && player_paddle.y > WALL_THICKNESS {
             player_paddle.y -= PADDLE_SPEED * delta_time;
         }
+
         player_paddle.draw();
 
         if top_wall.intersected_from_below_by(&mut ball)
@@ -169,16 +176,16 @@ async fn main() {
             ball.x_step = -ball.x_step;
         }
 
-        if ball.x_step < 0.0 && ball.x < 0.2 * screen_width() && !ball.projected {
-            ball.projected = true;
-            let ball_delta = -(0.2 - 0.1) * screen_width() * ball.y_step / ball.x_step;
+        if ball.x_step < 0.0 && ball.x < BALL_ESTIMATION_X * screen_width() && !ball.projected {
+            let ball_delta = (LEFT_PADDLE_FACE_X - BALL_ESTIMATION_X) * screen_width() * ball.y_step / ball.x_step;
             let ball_projected_position = ball.y + ball_delta;
-            let paddle_gap = ball_projected_position - program_paddle.y - program_paddle.h / 2.0;
-            increment = ball.y_step * paddle_gap / ball_delta;
+            let paddle_delta = ball_projected_position - program_paddle.y - program_paddle.h / 2.0;
+            paddle_increment = ball.y_step * paddle_delta / ball_delta;
+            ball.projected = true;
         }
 
         if ball.projected {
-            program_paddle.y += increment;
+            program_paddle.y += paddle_increment;
         }
 
         if ball.x_step < 0.0 && program_paddle.intersected_from_right_by(&mut ball) {
@@ -186,7 +193,7 @@ async fn main() {
             ball.projected = false;
         }
 
-        if ball.x > 0.95 * screen_width() || ball.x < 0.05 * screen_width() {
+        if ball.x < LEFT_BALL_RESET_X * screen_width() || ball.x > RIGHT_BALL_RESET_X * screen_width() {
             ball.reset();
             program_paddle.y = (screen_height() - PADDLE_HEIGHT) / 2.0;
         }
